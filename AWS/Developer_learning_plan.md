@@ -97,6 +97,99 @@ Amazon services:
 3- ECR is the registry to store containers
 
 
+## Deep Dive on AWS Fargate
+https://explore.skillbuilder.aws/learn/course/103/play/458/deep-dive-on-aws-fargate-building-serverless-containers-at-scale;lp=84
+
+Benefits of Fargate:
+1- Managed by AWS
+2- Elastic
+3- Integrated with AWS echosystem
+
+In Fargate you need to first define:
+1- Image
+2- URL
+3- CPU
+4- Memory
+5- etc.
+
+Then you need to define the cluster you need. Cluster is a logical boundry and inside the cluster we run our tasks. Each might have one to 10 containers. 
+
+Fargate allows us to run services within a cluster which uses elastic load balancing. Also, unhealthy tasks would be automatically replaced.
+
+To define a task we need to have a json snippet to run the task. This snippet is a json file that contains the cpu needed for that task, and an array which contains the memory definition for each container. There we can mention how much cpu we need for each container and how much memory is needed. Also, there we should declare which image we are going to use.
+
+Fargate has 50 different configurations among resources:
+
+![Alt text](image.png)
+
+Also, it has networking configurations to be setup:
+1. Create an ENI (Elastic Network Interface)
+2. The ENI ins allocated a private IP from subnet
+3. The ENI is attached to our task
+4. Your task now has a private IP
+5. If we need the task to be accessed or have access to the internet we still can setup inbound and outbound traffic
+6. the network can be defined as networkMode in task config
+
+Layer storage can be shared among the tasks:
+1. 10 Gb of storage is available per task which is shared across all containers, including image layers.
+2. Keep in mind that the writable layer is not visible in containers and they have to be setup in the container.
+
+Volume storage:
+1. If we need to have shared writable among containers AWS provides 4 Gb disk space among containers per task
+2. This volume can be mounted to each container which can be mounted to different containerPaths
+3. We should not specify host sourcePath
+4. This shared storage is ephemoral meaning that once the task is stopped all the data would be deleted automtically.
+5. according to 4 if we need to persist our data we need to design the architecture somehow to push the data to S3 before task being closed.
+
+IAM Permissions:
+1. Cluster permission: defines that who can describe/launch tasks within the cluster
+2. Application permissions: Allows your application containers to access AWS resources securely
+3. Housekeeping permissions: Allows us to perform image pull, cloudwatch logs, ENI creation, register/deregister targets into elastic load balancing.
+
+Housekeeping Permissions:
+1. Certain permissions are needed to bootstrap the task and keep it running
+2. Execution role: ECR Image Pull, Pushing Logs, 
+3. ECS Service Linked Role: ENI management, ELB Management
+
+Visibility and Monitoring:
+1. We can push our logs directly to CloudWatch
+2. Use awslogs to send stdout logs from application to CloudWatch logs
+3. Create a log group in CloudWatch
+4. Configure the log driver in your task definition
+
+![CloudWatch Config](image-1.png)
+
+5. Having access to task cpu and memory utilization on CloudWatch on AWS.
+
+
+Task Metadata:
+1. Query environmental data and stats for the running task within the task
+2. We can have access endpoint data such as task level and container level. this can be done through the ip namespace like:
+    - <IP>/v2/metadata
+    - <IP>/v2/stats
+    - <IP>/v2/metadata/<container-id>
+    - <IP>/v2/stats/<container-id>
+
+Managed Service Discovery for ECS:
+1. Service Registery -> This helps us to have updated list of registerd services with their IP and port
+2. Highly available and scalable
+3. Flexible for auto discovery
+
+Service Registry with Route 53:
+1. Define namespace
+2. CNAME per service
+3. A records per task IP
+4. SRV record per task IP + port
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -181,6 +181,139 @@ Service Registry with Route 53:
 3. A records per task IP
 4. SRV record per task IP + port
 
+Practical Demo:
+1. First we need to create new cluster to deploy our application.
+```bash
+aws ecs create-cluster --cluster-name pictshare --region ap-southeast-2
+```
+
+2. Then we need to define a task with task_definition.json:
+
+``` json
+{
+    "family": "pictshare",
+    ...
+    "containerDefinition: [
+        ...
+    ]
+}
+```
+
+3. Then we need to push our config to aws:
+
+``` bash
+aws ecs register-task-definition \
+--cli-input-json file://task_definition.json \
+--region ap-southeast-2 --query 'taskDefinition.taskDefinitionArn'
+```
+
+4. Then we need to configure our service with service.json:
+
+```json
+{
+    "cluster": "name",
+    "serviceName": "name",
+    "taskDefinition": "name:1",
+    "desiredCount": 1,
+    "launchType": "FARGATE",
+    "platformVersion": "LATEST",
+    "loadBalancers": [
+        {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:ap-souteeast-2....",
+            "containerName": "name:",
+            "containerPort": 80,
+        }
+    ],
+    "networkConfiguration": {
+        "awsvpcConfiguration": {
+            "subnets": ["subnet", "subnet-2"],
+            "securityGroups": ["sg-1"],
+            "assignPublicIp": "ENABLED"
+        }
+    }
+}
+```
+
+5. To push these configuration we should use the following:
+
+``` bash
+aws ecs create-service --cli-input-json file://service.json
+```
+
+If there are no errors it means that the service is created successfully
+
+
+6. then we need to start writing autoscaling configuration:
+
+```bash
+aws application-autoscaling register-scalable-target --resource-id service/name/name --service-namespace ecs --scalable-dimension ecs:service:DesiredCount --min-capacity 1 --max-capacity 20 --role-arn arn:---:--- 
+```
+
+7. Then we need to define scaling out dimensions by using another json file called scale-out.json:
+
+```json
+{
+    "PolicyName": "name",
+    "ServiceNamespace": "ecs",
+    "ResourceId": "service/name/name",
+    "ScalableDimension": "ecs:service:DesiredCount",
+    "PolicyType": "TargetTrackingScaling",
+    "TargetTrackingScalingPolicyConfiguration": {
+        "TargetValue": 50,
+        ...
+    } 
+    ...
+}
+```
+Here it mentions that according to cpu utilization how much we need to scale in or scale out.
+
+8. Then we need to deploy those configurations:
+
+```bash
+aws application-autoscaling put-scaling-policy --cli-input-json file://scale-out.json
+```
+
+9. To make sure that our repository changes would restart the services and update the code we need to first createa a repository on codecommit:
+
+```bash
+aws codecommit create-repository --repository-name name
+```
+
+10. Then we need to create a code build project:
+
+``` bash
+aws codebuild create-project \
+--name "name" \
+--description "Build project for name" \
+--source type="code-pipeline" \
+...
+```
+
+we can also create a codepipeline with passing a json document like all other instances that we have created.
+
+11. Then we need to create a code commit build which can trigger our service to pull the new container once the build is completed. This needs to create an event which triggers the pipeline
+
+``` bash
+aws events put-rule \
+--cli-input-json file://event_put_rule.json
+```
+
+## Dive Deep on Container Security
+https://explore.skillbuilder.aws/learn/course/72/deep-dive-on-container-security;lp=84
+
+
+
+12. 
+
+
+
+
+
+
+
+
+
+
 
 
 

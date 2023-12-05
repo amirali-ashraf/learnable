@@ -301,10 +301,85 @@ aws events put-rule \
 ## Dive Deep on Container Security
 https://explore.skillbuilder.aws/learn/course/72/deep-dive-on-container-security;lp=84
 
+This is a base talk for contianer security
+
+Risks
+- Segregation (Confidentiality)
+    - Container to Container
+    - Process to Process
+    - Container to Outside
 
 
-12. 
+- Access
+    - Who/When/Where
+    - Logging
+    - Start/Stop
+    - Content
 
+- Resource Usage
+
+Here is an overview how the computer system works and has different layers:
+
+![An Overview](image-2.png)
+
+If we have many applications we need to have:
+- Efficient CPU usage
+- Efficient Memory Usage
+- Compression
+- Quick
+- Agile
+- Lightweight
+
+The applications in different containers are using the same kernel meaning they use all features from OS which are shared and their segragation is really important. 
+
+There are several namespaces:
+
+- Namespace - I
+    - PID-Namespace
+    - CPU/Memory-Namespace (cgroup)
+    - Network-Namespace
+    - User-Namespace
+    - FS/Mount-Namespace
+    - IPC-Namespace
+    - UTS Namespace
+
+To start a Namespace, you need to clone(2) system call.
+
+- Namespace - II
+    - Namespaces are organized in a tree strucutre:
+    - ![Namespace Organization](image-3.png)
+
+- Namespace - III
+    - For example, we can have multiple processes in different namespaces which they cannot see each others' information, however, they can have shared network namespace. 
+    - ![Organization](image-4.png)
+
+- PID/Process Namespace:
+    - Each process has a global and local PID -> From the Kernel we can see both gloabl and local PID but from the local stand point we only can see local PID.
+    - The processes of different namespaces cannot see each other.
+    - 1st proces in a new namespace has PID1, others are linked to it in a tree structure.
+    - Modifying a process or killing a process is possible in the same namespace or child.
+    - STILLLLL, all on the same memory management. -> It is important to note that the relationship between the memory and the processes is important.
+    - Use clone(2) to get in. Do not install open-ssh inside the container and login!
+    - Fork(2) is available inside.
+
+- CPU/Memory (cgroups):
+    - Policy-based scheduling
+    - CPU Affinity possible, but not always encforced ->CPU affinity enables binding a process or multiple processes to a specific CPU core in a way that the process(es) will run from that specific core only.
+    - Memory limitation is difficult (Out of memory, or oom killer) -> If the memory gets extended and goes over the memory limit which causes problems. Also, container can use more memory even if we put a limitation.
+    - Dirty/Used/Empty Pages is a global topic.
+    - Be aware if context switches. This happens when the CPU scheduler decides that it needs to move from one process to another. This will have effects on registers, cache, and performance because it takes a lot of time. 
+
+- Network Namespaces:
+    - Puts interface into Namespaces
+    - Routing/Forwarding/Filters/Bridging happens inside the Kernel. Even, this does not happen inside the container but it happens inside a resource.
+    - All processes in a net-namespace can to talk to interface. 
+    - TCP/UDP/ICMP stacks are still in the kernel not in the container. All the connections inside a container should be held by kernel and they useshared resources. Also, they need syscalls which can be monitored from outside.
+    - How it works in AWS:
+        - ![Network Namesapces in AWS](image-5.png)
+    
+- FS/Mount Namespace:
+    - Mapping Table of Paths
+    - See Syscall for open
 
 
 

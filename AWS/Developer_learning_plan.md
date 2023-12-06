@@ -382,6 +382,63 @@ To start a Namespace, you need to clone(2) system call.
     - See Syscall for open
 
 
+- User Namespace
+    - This is a mapping table for users for local or global context.
+    - User management in MS possible, but not recommended
+
+
+- Recommendations:
+    - Start the dockerfile from scratch
+    - No login from outside word NO OPEN SSH
+    - Outside communication is critical
+
+
+## Amazon Elasric Cotnainer Service (ECS) Primer
+https://explore.skillbuilder.aws/learn/course/91/play/202/amazon-elastic-container-service-ecs-primer;lp=84
+
+Scalability in microservices is very important and we need to know how we can manage our enviroment at scale. In this case we can use Container management platforms which allows us to have control over everything such as logging and monitoring and management. In this case we can have following options:
+- ECS
+- Docker Swarm
+- Kubernetes
+
+In this course the focus is on ECS:
+- Highly scalable, high performance service.
+- Integrates with third-party schedulers and other AWS services.
+- Schedules placement across managed clusters.
+
+
+ECS solutions architecure:
+- ECS grabs the images from registries and publish them based on demand on defined clusters. This way we can lunch the application based on type of the service. If we need persistent then we need to use EC2 which needs us to handle updates and infrustructer.
+
+![Solution Architecture](image-6.png)
+
+
+ECS components:
+- Tasks
+    - Atomic unit of deployment within ECS
+    - They are build of one or multiple tightly coupled containers
+    - Managed by ECS task scheduler
+    - Run once or at intervals
+    - Optimal for batch jobs
+- Services
+    - A service is an abstraction on top of a task
+    - Each runs a specific number of tasks
+    - Also it can include a load balancer to distribute the load across the service
+    - Service scheduler can manage the tasks and failures by keeping track of number of running tasks
+    - Tasks can scale out and scale in easily
+    - Also, each task has zone awareness that can run according to different zones.
+
+![Services and tasks](image-7.png)
+
+
+Task definition:
+![Task Definition](image-8.png)
+
+
+
+
+
+
 
 
 

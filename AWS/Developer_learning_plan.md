@@ -434,6 +434,15 @@ ECS components:
 Task definition:
 ![Task Definition](image-8.png)
 
+![Task Definition 2](image-9.png)
+
+A task can be hosted by EC2 or AWS Fargate. It is important to note that EC2 is default on tasks and to change to Fargate, it has to be mentioned explicitly. For example the following task definition uses Fargate for launch time:
+
+![Task Definition to Run on Fargate](image-10.png)
+
+
+
+
 
 
 
